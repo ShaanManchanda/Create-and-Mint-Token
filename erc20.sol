@@ -1,21 +1,22 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Token is ERC20 {
-    address public owner;
+contract MyToken is ERC20, Ownable {
+    constructor(address initialOwner) Ownable(initialOwner) ERC20("Shaan", "SM") {}
 
-    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
-        owner = msg.sender;
+    function mint(address account, uint256 amount) public onlyOwner {
+        _mint(account, amount);
     }
 
-    modifier onlyOwner {
-        require(msg.sender == owner, "Only owner can do this");
-        _;
+    function burn(address account, uint256 amount) public {
+        _burn(account, amount);
     }
 
-    function mint(address _to, uint256 amount) public onlyOwner {
-        _mint(_to, amount);
+    function transfer(address recipient, uint256 amount) public override returns (bool) {
+        require(recipient != address(0), "ERC20: transfer to the zero address is not allowed");
+        return super.transfer(recipient, amount);
     }
 }
